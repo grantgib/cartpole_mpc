@@ -31,6 +31,7 @@ if animate_traj
     else    
         %% Trajectory Tracking Problem
         figure
+        xlim([X_REF(1,end)-1.5 X_REF(1,end)+1.5])
         for i = 1:length(t)/2
             clf;
             x = x_traj(1,i);
@@ -64,7 +65,10 @@ if animate_traj
             line([x_ref posref_pole(1)],[h h+posref_pole(2)],'LineWidth',2,'LineStyle','--','color','g')
             
             % Reset
-            axis([x-1.5 x+1.5 0 1])
+%             axis([-1.5 x+1.5 0 1])
+            x_offset = 6;
+            xlim([X_REF(1,end)-x_offset X_REF(1,end)+x_offset])
+            ylim([0 1.5]);
             drawnow;
             %         pause(0.001);
             

@@ -1,7 +1,7 @@
 function [] = Plot_Cartpole(t_all,x_traj,u_traj,sim_time,args,plot_traj,mpciter,X_REF,U_REF)
 if plot_traj
     figure
-    sz = 5;
+    sz = 15;
     width = 1;
     u_min = args.lbx(end,:);
     u_max = args.ubx(end,:);

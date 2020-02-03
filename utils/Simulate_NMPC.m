@@ -1,10 +1,12 @@
-function [x_traj,u_traj,x_traj_all,t_all,mpciter] = Simulate_NMPC(x_init, DT, N, n_x, n_c, f_nonlinear, solver, args, sim_time,type_reg,X_REF,U_REF)
+function [x_traj,u_traj,x_traj_all,t_all,mpciter] = Simulate_NMPC(x_init, DT, N, n_x, n_c, f_nonlinear, solver, args, sim_time,type_reg,X_REF_Original,U_REF_Original)
 % Choose regulator vs. trajectory tracking
 
 import casadi.*
 %% Initialize Variables
 t_current = 0;          % current time step (sec)
 t_all(1) = t_current;  
+X_REF = X_REF_Original;
+U_REF = U_REF_Original;
 
 X0 = repmat(x_init,1,N+1)'; % initialization of the states decision variables.
 %   This initialization assumes the state remains the same for each time
@@ -69,7 +71,7 @@ while(mpciter < sim_time / DT)
     X0 = [X0(2:end,:);X0(end,:)];   % initialize with next step and add on last state twice
     
     % Shift X_REF and U_REF ** Only for trajectory tracking**
-    if nargin > 11
+    if ~type_reg
         X_REF = [X_REF(:,2:end),X_REF(:,end)];
         U_REF = [U_REF(:,2:end),U_REF(:,end)];
     end
@@ -88,6 +90,11 @@ u_traj = u_traj';
 %% Final Calculations
 ss_error = norm((x_traj(:,end)-X_REF),2);
 average_mpc_time = main_loop_time/(mpciter+1);
+if ~type_reg
+    traj_error = vecnorm((x_traj - X_REF_Original(1:size(x_traj,2)))');
+    disp("Trajectory error (2-norm) = ")
+    disp(traj_error);
+end
 disp("Steady-state error (2-norm) = " + ss_error);
 disp("Average MPC Calculation Time = " + average_mpc_time);
 

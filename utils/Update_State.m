@@ -1,10 +1,9 @@
-function [t_next, x_next, u_next_guess] = Update_State(DT, t0, x0, u,f)
-st = x0;
-con = u(1,:)';
-f_value = f(st,con);
-st = st+ (DT*f_value);
-x_next = full(st);
+function [t_next, x_next, u_next_guess] = Update_State(DT, t_current, x_init,U_init,f)
+st = x_init;
+ctrl = U_init(1,:)';
+f_value = f(st,ctrl);
+x_next = full(st+ (DT*f_value));
 
-t_next = t0 + DT;
-u_next_guess = [u(2:size(u,1),:);u(size(u,1),:)];
+t_next = t_current + DT;
+u_next_guess = [U_init(2:size(U_init,1),:);U_init(size(U_init,1),:)];
 end

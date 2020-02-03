@@ -12,7 +12,11 @@ end
 addpath(genpath('utils/'));
 
 %% Generate Cartpole Dynamics
-[f_nonlinear, n_x, n_c, length_pole] = Generate_Cartpole_Dynamics();
+pinned = true;
+linearize = false;
+analytical = false;
+[f_nonlinear, n_x, n_c, length_pole] = ...
+    Generate_Cartpole_Dynamics(pinned,linearize,analytical);
 disp("Finished computing dynamics!");
 
 %% Build Nonlinear program
@@ -38,23 +42,23 @@ end
 % Choose initial condition and reference state
 if ex1
     % example 1 conditions
-    x_init = [0 ; pi; 0; 0] +...
-             [0.2; 0.1; 0.05; 0.05];      % initial condition.
+    x_init_ref = [0 ; pi; 0; 0] % initial conditionfrom reference
+    x_init = x_init_ref + [0.2; 0.1; 0.05; 0.05]      % initial condition.
 else
     % example 2 conditions
-    x_init = [0.5 ; pi+0.4; 0.2; -0.1] +...
-             [-0.1; -0.1; -0.05; -0.05];        % Reference posture.
+    x_init_ref = [0.5 ; pi+0.4; 0.2; -0.1]
+    x_init = x_init_ref + [-0.1; -0.1; -0.05; -0.05]        % Reference posture.
 end
 % Simulate
 sim_time = 10;      % Maximum simulation time (sec)
 disp("Begin Simulation...");
 [x_traj,u_traj,x_traj_all,t_all,mpciter] = Simulate_NMPC(x_init, DT, N, n_x, n_c,...
                                                  f_nonlinear, solver, args,...
-                                                 sim_time,type_reg,X_REF,U_REF);
+                                                 sim_time,type_reg,X_REF_Original,U_REF_Original);
 disp("Finished Simulation!");
 
 %% Save Trajectory
-save_traj = true;
+save_traj = false;
 if save_traj
     if ex1
         file_name = "cartpole_trajtrack_ex1";

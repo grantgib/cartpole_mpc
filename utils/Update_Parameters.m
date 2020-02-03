@@ -2,8 +2,7 @@ function args = Update_Parameters(x_init,N,n_x,n_c,args,X_REF, U_REF)
 
 if nargin == 6 % ==> type_reg = true
     %% Regulator Problem
-    
-    args.p   = [x_init; X_REF]; % set the values of the parameters vector
+    args.p = [x_init; X_REF]; % set the values of the parameters vector
     % initial value of the decision variables
     
 else

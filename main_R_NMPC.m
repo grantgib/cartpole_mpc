@@ -12,7 +12,11 @@ end
 addpath(genpath('utils/'));
 
 %% Generate Cartpole Dynamics
-[f_nonlinear, n_x, n_c, length_pole] = Generate_Cartpole_Dynamics();
+pinned = true;
+linearize = false;
+analytical = false;
+[f_nonlinear, n_x, n_c, length_pole] = ...
+    Generate_Cartpole_Dynamics(pinned,linearize,analytical);
 disp("Finished computing dynamics!");
 
 %% Build Nonlinear program
@@ -27,7 +31,7 @@ disp("Finished formulating NLP!");
 ex1 = false;
 if ex1
     % example 1 conditions
-    x_init = [0 ; pi; 0; 0];       % initial condition.
+    x_init = [0 ; pi; 0; 0];        % initial condition.
     x_ref = [2 ; pi; 0; 0];         % Reference posture.
 else
     % example 2 conditions
@@ -35,17 +39,17 @@ else
     x_ref = [0 ; pi; 0; 0];       % initial condition.
 end
 % Simulate
-sim_time = 1;      % Maximum simulation time (sec)
+sim_time = 10;      % Maximum simulation time (sec)
 disp("Begin Simulation...");
-[x_traj,u_traj,x_traj_all,t_all,mpciter] = Simulate_NMPC(x_init, DT, N, n_x, n_c,...
-                                                 f_nonlinear, solver, args,...
-                                                 sim_time,type_reg,x_ref);
+[x_traj,u_traj,x_traj_all,t_all,mpciter] = ...
+    Simulate_NMPC(x_init,DT,N,n_x,n_c,f_nonlinear,...
+                  solver,args,sim_time,type_reg,x_ref);
 disp("Finished Simulation!");
 
 %% Save Trajectory
 save_traj = false;
 if save_traj
-    X_REF = x_traj;
+    X_REF = x_traj; %#ok<UNRCH>
     U_REF = u_traj;
     if ex1
         file_name = "cartpole_reference_trajectory_ex1";
