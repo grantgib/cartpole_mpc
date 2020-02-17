@@ -1,4 +1,4 @@
-function [f_nonlinear,f_linear,E_nonlinear,H_nonlinear,E_linear,H_linear,n_x, n_u, l_pole] = Generate_Cartpole_Dynamics()
+function [f_nonlinear,f_linear,E_nonlinear,H_nonlinear,E_linear,H_linear,DDQ_REF,n_x, n_u, l_pole] = Generate_Cartpole_Dynamics()
 import casadi.*
 
 % Symbolic control variables
@@ -35,6 +35,6 @@ B = [1; 0];
 % Descriptor System: Use E and H matrices to propogate without needing inverse of mass
 % inertia matrix
 % E*xdot = H --> E(xk)*x_k1 = E(xk)*xk + DT*H(xk)
-[E_nonlinear,H_nonlinear,E_linear,H_linear] = Descriptor_Matrices(q,dq,x,u,n_q,D,C,G,B);
+[E_nonlinear,H_nonlinear,E_linear,H_linear,DDQ_REF] = Descriptor_Matrices(q,dq,x,u,n_q,D,C,G,B);
 
 end

@@ -1,4 +1,4 @@
-function [solver_NL,solver_L] = Formulate_NLP(DT,N,n_x,n_c,f_nonlinear,f_linear,E_nonlinear,E_linear,H_nonlinear,H_linear,type_reg)
+function [solver_NL,solver_L] = Formulate_NLP(DT,N,n_x,n_c,f_nonlinear,f_linear,E_nonlinear,E_linear,H_nonlinear,H_linear,DDQ_REF,type_reg)
 % Formulate NLP
 %   * Symbolically create the objective function and equality constraints
 %   (dynamics)
@@ -21,7 +21,7 @@ opts.print_time = 0;
 clear linearize dX dU P obj g DEC_variables nlp_prob
 linearize = false;
 % Compute symbolic variables of quadratic program
-[X,U,P,obj,g] = Compute_Objective_Constraints(DT,N,n_x,n_c,f_nonlinear,E_nonlinear,H_nonlinear,type_reg,linearize);
+[X,U,P,obj,g] = Compute_Objective_Constraints(DT,N,n_x,n_c,f_nonlinear,E_nonlinear,H_nonlinear,DDQ_REF,type_reg,linearize);
 
 % Settings
 % Decision variables to optimize
@@ -35,7 +35,7 @@ solver_NL = nlpsol('solver', 'ipopt', nlp_prob,opts);
 
 %% Linearization Formulation
 linearize = true;
-[dX,dU,P,obj,g] = Compute_Objective_Constraints(DT,N,n_x,n_c,f_linear,E_linear,H_linear,type_reg,linearize);
+[dX,dU,P,obj,g] = Compute_Objective_Constraints(DT,N,n_x,n_c,f_linear,E_linear,H_linear,DDQ_REF,type_reg,linearize);
 
 % Settings
 % Decision variables to optimize

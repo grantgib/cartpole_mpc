@@ -36,7 +36,7 @@ end
 %% Generate Cartpole Dynamics
 % Assume pinned model
 disp("Begin Dynamics Computation...");
-[f_nonlinear,f_linear,E_nonlinear,H_nonlinear,E_linear,H_linear,n_x, n_u, l_pole] = ...
+[f_nonlinear,f_linear,E_nonlinear,H_nonlinear,E_linear,H_linear,DDQ_REF,n_x, n_u, l_pole] = ...
     Generate_Cartpole_Dynamics();
 disp("Finished computing dynamics!");
 
@@ -46,7 +46,7 @@ N = 200;            % Prediction Horizon
 type_reg = false;   % Trajectory Tracking problem
 disp("Begin NLP formulation...");
 [solver_NL,solver_L] = ...
-    Formulate_NLP(DT,N,n_x,n_u,f_nonlinear,f_linear,E_nonlinear,E_linear,H_nonlinear,H_linear,type_reg);
+    Formulate_NLP(DT,N,n_x,n_u,f_nonlinear,f_linear,E_nonlinear,E_linear,H_nonlinear,H_linear,DDQ_REF,type_reg);
 disp("Finished formulating NLP!");
 
 %% Simulation time

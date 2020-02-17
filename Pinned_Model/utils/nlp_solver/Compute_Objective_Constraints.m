@@ -1,4 +1,4 @@
-function [Xdec,Udec,P,obj,g] = Compute_Objective_Constraints(DT,N,n_x,n_c,f,E,H,type_reg,linearize)
+function [Xdec,Udec,P,obj,g] = Compute_Objective_Constraints(DT,N,n_x,n_c,f,E,H,DDQ_REF,type_reg,linearize)
 import casadi.*
 U = SX.sym('U',n_c,N);      % controls in R^N-1. subset of the decision variables
 X = SX.sym('X',n_x,(N+1));  % A vector that represents the states over the optimization problem.
@@ -52,15 +52,18 @@ if linearize
             u_ref = 0;
             delta_x_k_1 = dX(:,k+1);                 % next state (from decision variables)
             
-            % E*xdot = H --> E(xk)*x_k1 = E(xk)*xk + DT*H(xk)
-            %             g = [g; E(x_ref,u_ref,delta_x_k)*delta_x_k_1 - E(x_ref,u_ref,delta_x_k)*delta_x_k - DT*H(x_ref,u_ref,delta_x_k,delta_u_k)];
+            % E*xdot = H --> E(delta_xk)*x_k1 = E(delta_xk)*xk + DT*H(delta_xk,delta_uk)
+            dynamics_constraint = E(x_ref,u_ref,ddq_ref,delta_x_k,delta_u_k)*delta_x_k_1 - ...
+                E(x_ref,u_ref,ddq_ref,delta_x_k,delta_u_k)*delta_x_k - ...
+                DT*H(x_ref,u_ref,ddq_ref,delta_x_k,delta_u_k);
             
-            %             *ARCHIVED*: Stopped Forward Euler method due to
-            %             matrix inversion in f(...)
-            delta_xdot = f(x_ref,u_ref,delta_x_k,delta_u_k);                  % Nonlinear dynamics propogation
-            delta_x_k_1_euler = delta_x_k+ (DT*delta_xdot);      % Forward Euler Discretization prediction
-            g = [g; delta_x_k_1 - delta_x_k_1_euler];     % Update constraints vector
+            g = [g; dynamics_constraint];
             
+            %*ARCHIVED*: Stopped Forward Euler method due to
+            %matrix inversion in f(...)
+%             delta_xdot = f(x_ref,u_ref,delta_x_k,delta_u_k);                  % Nonlinear dynamics propogation
+%             delta_x_k_1_euler = delta_x_k+ (DT*delta_xdot);      % Forward Euler Discretization prediction
+%             g = [g; delta_x_k_1 - delta_x_k_1_euler];     % Update constraints vector
         end
         
     else
@@ -89,20 +92,25 @@ if linearize
         g = [];                 % initialize equality constraints vector
         g = [g; dX(:,1)-P(1:n_x)];   % initial condition constraints
         for k = 1:N
-            delta_x_k = dX(:,k);                        % current state
-            delta_u_k = dU(:,k);                      % current control
             x_ref = P((k-1)*(n_x+n_c)+(n_x+1):(k-1)*(n_x+n_c)+(n_x+n_x));
             u_ref = P((k-1)*(n_x+n_c)+(n_x+n_x+1):(k-1)*(n_x+n_c)+(n_x+n_x+n_c));
+            ddq_ref = DDQ_REF(x_ref,u_ref);
+            delta_x_k = dX(:,k);                        % current state
+            delta_u_k = dU(:,k);                      % current control
             delta_x_k_1 = dX(:,k+1);                 % next state (from decision variables)
             
-            % E*xdot = H --> E(xk)*x_k1 = E(xk)*xk + DT*H(xk)
-            %             g = [g; E(x_ref,u_ref,delta_x_k)*delta_x_k_1 - E(x_ref,u_ref,delta_x_k)*delta_x_k - DT*H(x_ref,u_ref,delta_x_k,delta_u_k)];
+            % E*xdot = H --> E(delta_xk)*x_k1 = E(delta_xk)*xk + DT*H(delta_xk,delta_uk)
+            dynamics_constraint = E(x_ref,u_ref,ddq_ref,delta_x_k,delta_u_k)*delta_x_k_1 - ...
+                E(x_ref,u_ref,ddq_ref,delta_x_k,delta_u_k)*delta_x_k - ...
+                DT*H(x_ref,u_ref,ddq_ref,delta_x_k,delta_u_k);
             
-            %             *ARCHIVED*: Stopped Forward Euler method due to
-            %             matrix inversion in f(...)
-            delta_xdot = f(x_ref,u_ref,delta_x_k,delta_u_k);                  % Nonlinear dynamics propogation
-            delta_x_k_1_euler = delta_x_k+ (DT*delta_xdot);      % Forward Euler Discretization prediction
-            g = [g; delta_x_k_1 - delta_x_k_1_euler];     % Update constraints vector
+            g = [g; dynamics_constraint];
+            
+            % *ARCHIVED*: Stopped Forward Euler method due to
+            % matrix inversion in f(...)
+%             delta_xdot = f(x_ref,u_ref,delta_x_k,delta_u_k);                  % Nonlinear dynamics propogation
+%             delta_x_k_1_euler = delta_x_k+ (DT*delta_xdot);      % Forward Euler Discretization prediction
+%             g = [g; delta_x_k_1 - delta_x_k_1_euler];     % Update constraints vector
             
             
         end

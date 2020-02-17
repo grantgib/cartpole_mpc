@@ -28,7 +28,7 @@ end
 
 %% Generate Cartpole Dynamics
 % Assumed pinned dynamics
-[f_nonlinear,f_linear,E_nonlinear,H_nonlinear,E_linear,H_linear,n_x, n_c, length_pole] = ...
+[f_nonlinear,f_linear,E_nonlinear,H_nonlinear,E_linear,H_linear,DDQ_REF,n_x, n_c, length_pole] = ...
     Generate_Cartpole_Dynamics();
 disp("Finished computing dynamics!");
 
@@ -37,7 +37,7 @@ DT = 0.005;         % Control update (sec)
 N = 200;            % Prediction Horizon
 type_reg = true;    % Regulator problem
 [solver_NL,solver_L] = ...
-    Formulate_NLP(DT,N,n_x,n_c,f_nonlinear,f_linear,E_nonlinear,E_linear,H_nonlinear,H_linear,type_reg);
+    Formulate_NLP(DT,N,n_x,n_c,f_nonlinear,f_linear,E_nonlinear,E_linear,H_nonlinear,H_linear,DDQ_REF,type_reg);
 disp("Finished formulating NLP!");
 
 %% Simulation Time
